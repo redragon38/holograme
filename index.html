@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BodyVision Pro — Détection corporelle</title>
+  <link rel="icon" href="data:,">
   <style>
     :root {
       --bg-1: #060b16;
@@ -19,10 +20,10 @@
       --danger: #ff6b7a;
       --shadow: 0 20px 60px rgba(0,0,0,0.35);
       --radius-xl: 28px;
-      --radius-lg: 22px;
-      --radius-md: 16px;
     }
+
     * { box-sizing: border-box; }
+
     html, body {
       margin: 0;
       padding: 0;
@@ -35,6 +36,7 @@
         linear-gradient(135deg, var(--bg-1), var(--bg-2));
       overflow-x: hidden;
     }
+
     body::before {
       content: "";
       position: fixed;
@@ -47,6 +49,7 @@
       background-size: 34px 34px;
       mask-image: radial-gradient(circle at center, black 30%, transparent 85%);
     }
+
     .app {
       width: min(1400px, calc(100% - 24px));
       margin: 18px auto;
@@ -56,8 +59,8 @@
       background: rgba(255,255,255,0.05);
       backdrop-filter: blur(20px);
       box-shadow: var(--shadow);
-      animation: fadeUp .7s ease;
     }
+
     .topbar {
       display: flex;
       align-items: center;
@@ -66,79 +69,342 @@
       flex-wrap: wrap;
       margin-bottom: 18px;
     }
-    .brand { display: flex; align-items: center; gap: 14px; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
     .logo {
-      width: 54px; height: 54px; border-radius: 18px;
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
       background: linear-gradient(135deg, var(--primary), var(--secondary));
       box-shadow: 0 12px 30px rgba(109,124,255,0.35);
-      position: relative; overflow: hidden;
+      position: relative;
+      overflow: hidden;
     }
+
     .logo::before, .logo::after {
-      content: ""; position: absolute; border: 2px solid rgba(255,255,255,0.75); border-radius: 999px;
+      content: "";
+      position: absolute;
+      border: 2px solid rgba(255,255,255,0.75);
+      border-radius: 999px;
     }
-    .logo::before { width: 14px; height: 14px; top: 8px; left: 20px; }
-    .logo::after { width: 24px; height: 24px; left: 15px; bottom: 8px; border-radius: 14px 14px 18px 18px; }
-    .brand h1 { margin: 0; font-size: clamp(1.15rem, 2vw, 1.55rem); }
-    .brand p { margin: 4px 0 0; color: var(--muted); font-size: 0.92rem; }
+
+    .logo::before {
+      width: 14px;
+      height: 14px;
+      top: 8px;
+      left: 20px;
+    }
+
+    .logo::after {
+      width: 24px;
+      height: 24px;
+      left: 15px;
+      bottom: 8px;
+      border-radius: 14px 14px 18px 18px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.15rem, 2vw, 1.55rem);
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
     .status {
-      display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 999px;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--muted); font-size: 0.94rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted);
+      font-size: 0.94rem;
     }
-    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--warning); box-shadow: 0 0 0 0 rgba(255,184,77,0.6); animation: pulse 2s infinite; }
-    .dot.live { background: var(--success); box-shadow: 0 0 0 0 rgba(33,212,138,0.6); }
-    .dot.error { background: var(--danger); animation: none; box-shadow: none; }
-    .layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.9fr); gap: 18px; }
-    .panel { border-radius: var(--radius-xl); border: 1px solid var(--card-border); background: rgba(9,15,28,0.72); backdrop-filter: blur(14px); overflow: hidden; }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--warning);
+      box-shadow: 0 0 0 0 rgba(255,184,77,0.6);
+      animation: pulse 2s infinite;
+    }
+
+    .dot.live {
+      background: var(--success);
+      box-shadow: 0 0 0 0 rgba(33,212,138,0.6);
+    }
+
+    .dot.error {
+      background: var(--danger);
+      animation: none;
+      box-shadow: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.9fr);
+      gap: 18px;
+    }
+
+    .panel {
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--card-border);
+      background: rgba(9,15,28,0.72);
+      backdrop-filter: blur(14px);
+      overflow: hidden;
+    }
+
     .video-panel { padding: 18px; }
+
     .video-stage {
-      position: relative; width: 100%; aspect-ratio: 16 / 10; min-height: 300px; border-radius: 24px; overflow: hidden;
-      background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      min-height: 300px;
+      border-radius: 24px;
+      overflow: hidden;
+      background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.1);
     }
-    video, canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 24px; }
+
+    video, canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 24px;
+    }
+
+    canvas {
+      z-index: 2;
+      pointer-events: none;
+    }
+
     .overlay-bar {
-      position: absolute; left: 14px; right: 14px; bottom: 14px; display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap; z-index: 5; pointer-events: none;
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      z-index: 5;
+      pointer-events: none;
     }
+
     .chip {
-      pointer-events: auto; display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px;
-      background: rgba(7,11,24,0.68); border: 1px solid rgba(255,255,255,0.12); color: #edf3ff; font-size: 0.9rem; backdrop-filter: blur(10px);
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(7,11,24,0.68);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #edf3ff;
+      font-size: 0.9rem;
+      backdrop-filter: blur(10px);
     }
-    .controls { margin-top: 16px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-    .btn, .file-btn {
-      min-height: 56px; border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 14px 16px; color: var(--text);
-      background: rgba(255,255,255,0.05); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-      font-size: 0.96rem; font-weight: 700; box-shadow: 0 10px 24px rgba(0,0,0,0.18); transition: transform .18s ease, box-shadow .18s ease, background .18s ease; text-align: center;
+
+    .controls {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
     }
-    .btn:hover, .file-btn:hover { transform: translateY(-2px); }
-    .btn:active, .file-btn:active { transform: translateY(0); }
-    .btn-primary { background: linear-gradient(135deg, var(--primary), #7b61ff); box-shadow: 0 14px 32px rgba(109,124,255,0.32); }
-    .btn-accent { background: linear-gradient(135deg, rgba(25,209,255,0.2), rgba(109,124,255,0.2)); }
+
+    .btn {
+      min-height: 56px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      padding: 14px 16px;
+      color: var(--text);
+      background: rgba(255,255,255,0.05);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #7b61ff);
+      box-shadow: 0 14px 32px rgba(109,124,255,0.32);
+    }
+
+    .btn-accent {
+      background: linear-gradient(135deg, rgba(25,209,255,0.2), rgba(109,124,255,0.2));
+    }
+
     input[type="file"] { display: none; }
-    .side { padding: 18px; display: grid; gap: 16px; align-content: start; }
-    .card { border-radius: 22px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); padding: 18px; animation: fadeUp .7s ease; }
-    .card h2, .card h3 { margin: 0 0 12px; font-size: 1rem; }
-    .muted { color: var(--muted); line-height: 1.6; }
-    .stats { margin-top: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    .stat { border-radius: 16px; padding: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
-    .stat-label { color: var(--muted); font-size: 0.84rem; margin-bottom: 6px; }
-    .stat-value { font-size: 1.14rem; font-weight: 800; }
-    .body-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-    .body-item {
-      border-radius: 16px; padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-      display: flex; justify-content: space-between; align-items: center; gap: 10px; transition: transform .18s ease, border-color .18s ease, background .18s ease;
+
+    .side {
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
     }
-    .body-item.active { background: linear-gradient(135deg, rgba(109,124,255,0.18), rgba(25,209,255,0.14)); border-color: rgba(25,209,255,0.4); transform: translateY(-1px); }
-    .badge { padding: 6px 9px; border-radius: 999px; font-size: 0.78rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.09); white-space: nowrap; }
-    .legend { display: flex; flex-wrap: wrap; gap: 10px; }
-    .legend span { display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--muted); }
-    .legend i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-    .log { max-height: 180px; overflow: auto; display: grid; gap: 10px; padding-right: 4px; }
-    .log-item { padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); font-size: 0.92rem; }
-    .footer { text-align: center; color: var(--muted); font-size: 0.88rem; margin-top: 14px; padding: 4px; }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,184,77,0.5); } 70% { box-shadow: 0 0 0 12px rgba(255,184,77,0); } 100% { box-shadow: 0 0 0 0 rgba(255,184,77,0); } }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } .controls { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+    .card {
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      padding: 18px;
+    }
+
+    .card h2, .card h3 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+
+    .muted {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .stats {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.84rem;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 1.14rem;
+      font-weight: 800;
+    }
+
+    .body-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .body-item {
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+    .body-item.active {
+      background: linear-gradient(135deg, rgba(109,124,255,0.18), rgba(25,209,255,0.14));
+      border-color: rgba(25,209,255,0.4);
+      transform: translateY(-1px);
+    }
+
+    .badge {
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.09);
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .legend i {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .log {
+      max-height: 180px;
+      overflow: auto;
+      display: grid;
+      gap: 10px;
+      padding-right: 4px;
+    }
+
+    .log-item {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.92rem;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-top: 14px;
+      padding: 4px;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255,184,77,0.5); }
+      70% { box-shadow: 0 0 0 12px rgba(255,184,77,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,184,77,0); }
+    }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
     @media (max-width: 640px) {
-      .app { width: min(100% - 12px, 100%); margin: 8px auto; padding: 10px; border-radius: 22px; }
+      .app {
+        width: min(100% - 12px, 100%);
+        margin: 8px auto;
+        padding: 10px;
+        border-radius: 22px;
+      }
       .video-panel, .side { padding: 12px; }
       .video-stage { aspect-ratio: 10 / 13; }
       .controls, .stats, .body-list { grid-template-columns: 1fr; }
@@ -156,6 +422,7 @@
           <p>Reconnaissance corporelle en temps réel depuis caméra ou vidéo</p>
         </div>
       </div>
+
       <div class="status">
         <span class="dot" id="statusDot"></span>
         <span id="statusText">Initialisation du moteur IA...</span>
@@ -167,116 +434,117 @@
         <div class="video-stage">
           <video id="video" playsinline webkit-playsinline muted autoplay controls></video>
           <canvas id="canvas"></canvas>
+
           <div class="overlay-bar">
             <div class="chip" id="sourceChip">Source : aucune</div>
             <div class="chip" id="fpsChip">FPS : --</div>
           </div>
         </div>
+
         <div class="controls">
-          <button class="btn btn-primary" id="cameraBtn">📷 Lancer la caméra</button>
-          <label for="videoInput" class="file-btn btn-accent">🎞️ Importer une vidéo</label>
-          <button class="btn" id="toggleBtn">⏸️ Pause détection</button>
-          <button class="btn" id="stopBtn">⏹️ Arrêter</button>
-          <input type="file" id="videoInput" accept="video/*" />
+          <button class="btn btn-primary" id="cameraBtn" type="button">📷 Lancer la caméra</button>
+          <button class="btn btn-accent" id="fileBtn" type="button">🎞️ Charger une vidéo</button>
+          <button class="btn" id="toggleBtn" type="button">⏸️ Pause détection</button>
+          <button class="btn" id="stopBtn" type="button">⏹️ Arrêter</button>
+          <input type="file" id="videoInput" accept="video/*,.mp4,.mov,.webm,.m4v" />
         </div>
       </section>
 
       <aside class="panel side">
         <section class="card">
           <h2>Informations en direct</h2>
-          <p class="muted" id="infoText">Le moteur se prépare. Lance la caméra ou importe une vidéo pour commencer l’analyse du corps humain.</p>
+          <p class="muted" id="infoText">Le moteur se prépare. Lance la caméra ou charge une vidéo pour commencer l’analyse du corps humain.</p>
+
           <div class="stats">
-            <div class="stat"><div class="stat-label">Personnes détectées</div><div class="stat-value" id="peopleCount">0</div></div>
-            <div class="stat"><div class="stat-label">Points visibles</div><div class="stat-value" id="pointsCount">0</div></div>
-            <div class="stat"><div class="stat-label">Confiance moyenne</div><div class="stat-value" id="confidenceValue">0%</div></div>
-            <div class="stat"><div class="stat-label">Mode</div><div class="stat-value" id="modeValue">Standby</div></div>
+            <div class="stat">
+              <div class="stat-label">Personnes détectées</div>
+              <div class="stat-value" id="peopleCount">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Points visibles</div>
+              <div class="stat-value" id="pointsCount">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Confiance moyenne</div>
+              <div class="stat-value" id="confidenceValue">0%</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Mode</div>
+              <div class="stat-value" id="modeValue">Standby</div>
+            </div>
           </div>
         </section>
-        <section class="card"><h3>Membres détectés</h3><div class="body-list" id="bodyList"></div></section>
-        <section class="card"><h3>Légende</h3><div class="legend"><span><i style="background:#19d1ff"></i> Points</span><span><i style="background:#8b7dff"></i> Squelette</span><span><i style="background:#21d48a"></i> Libellés</span></div></section>
-        <section class="card"><h3>Journal système</h3><div class="log" id="log"></div></section>
+
+        <section class="card">
+          <h3>Membres détectés</h3>
+          <div class="body-list" id="bodyList"></div>
+        </section>
+
+        <section class="card">
+          <h3>Légende</h3>
+          <div class="legend">
+            <span><i style="background:#19d1ff"></i> Points</span>
+            <span><i style="background:#8b7dff"></i> Squelette</span>
+            <span><i style="background:#21d48a"></i> Libellés</span>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Journal système</h3>
+          <div class="log" id="log"></div>
+        </section>
       </aside>
     </main>
+
     <div class="footer">Détection locale dans le navigateur. Pour un meilleur résultat, garde le corps visible et bien éclairé.</div>
   </div>
 
   <script type="module">
-    import { FilesetResolver, PoseLandmarker } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/+esm';
+    import { FilesetResolver, PoseLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.mjs";
 
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const cameraBtn = document.getElementById('cameraBtn');
-    const videoInput = document.getElementById('videoInput');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const statusDot = document.getElementById('statusDot');
-    const statusText = document.getElementById('statusText');
-    const sourceChip = document.getElementById('sourceChip');
-    const fpsChip = document.getElementById('fpsChip');
-    const infoText = document.getElementById('infoText');
-    const peopleCount = document.getElementById('peopleCount');
-    const pointsCount = document.getElementById('pointsCount');
-    const confidenceValue = document.getElementById('confidenceValue');
-    const modeValue = document.getElementById('modeValue');
-    const bodyList = document.getElementById('bodyList');
-    const logEl = document.getElementById('log');
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
 
-    const BODY_PARTS = ['Tête', 'Épaules', 'Bras', 'Coudes', 'Mains', 'Torse', 'Hanches', 'Jambes', 'Genoux', 'Pieds'];
-    const LANDMARKS = { nose:0, leftEye:2, rightEye:5, leftEar:7, rightEar:8, leftShoulder:11, rightShoulder:12, leftElbow:13, rightElbow:14, leftWrist:15, rightWrist:16, leftIndex:19, rightIndex:20, leftThumb:21, rightThumb:22, leftHip:23, rightHip:24, leftKnee:25, rightKnee:26, leftAnkle:27, rightAnkle:28, leftHeel:29, rightHeel:30, leftFootIndex:31, rightFootIndex:32 };
+    const cameraBtn = document.getElementById("cameraBtn");
+    const fileBtn = document.getElementById("fileBtn");
+    const videoInput = document.getElementById("videoInput");
+    const toggleBtn = document.getElementById("toggleBtn");
+    const stopBtn = document.getElementById("stopBtn");
+
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+    const sourceChip = document.getElementById("sourceChip");
+    const fpsChip = document.getElementById("fpsChip");
+    const infoText = document.getElementById("infoText");
+    const peopleCount = document.getElementById("peopleCount");
+    const pointsCount = document.getElementById("pointsCount");
+    const confidenceValue = document.getElementById("confidenceValue");
+    const modeValue = document.getElementById("modeValue");
+    const bodyList = document.getElementById("bodyList");
+    const logEl = document.getElementById("log");
+
+    const BODY_PARTS = ["Tête","Épaules","Bras","Coudes","Mains","Torse","Hanches","Jambes","Genoux","Pieds"];
+
+    const LANDMARKS = {
+      nose: 0, leftEye: 2, rightEye: 5, leftEar: 7, rightEar: 8,
+      leftShoulder: 11, rightShoulder: 12, leftElbow: 13, rightElbow: 14,
+      leftWrist: 15, rightWrist: 16, leftIndex: 19, rightIndex: 20,
+      leftThumb: 21, rightThumb: 22, leftHip: 23, rightHip: 24,
+      leftKnee: 25, rightKnee: 26, leftAnkle: 27, rightAnkle: 28,
+      leftHeel: 29, rightHeel: 30, leftFootIndex: 31, rightFootIndex: 32
+    };
+
     const CONNECTIONS = [
-      // tête / visage principal
-      ["nose","leftEye"],
-      ["nose","rightEye"],
-      ["leftEye","rightEye"],
-      ["leftEye","leftEar"],
-      ["rightEye","rightEar"],
-      ["leftEar","leftShoulder"],
-      ["rightEar","rightShoulder"],
-
-      // épaules / bras
-      ["leftShoulder","rightShoulder"],
-      ["leftShoulder","leftElbow"],
-      ["leftElbow","leftWrist"],
-      ["rightShoulder","rightElbow"],
-      ["rightElbow","rightWrist"],
-
-      // détail mains / bras
-      ["leftWrist","leftThumb"],
-      ["leftWrist","leftIndex"],
-      ["rightWrist","rightThumb"],
-      ["rightWrist","rightIndex"],
-      ["leftElbow","leftIndex"],
-      ["rightElbow","rightIndex"],
-
-      // torse
-      ["leftShoulder","leftHip"],
-      ["rightShoulder","rightHip"],
-      ["leftShoulder","rightHip"],
-      ["rightShoulder","leftHip"],
-      ["leftHip","rightHip"],
-
-      // bassin / jambes
-      ["leftHip","leftKnee"],
-      ["leftKnee","leftAnkle"],
-      ["rightHip","rightKnee"],
-      ["rightKnee","rightAnkle"],
-
-      // pieds détaillés
-      ["leftAnkle","leftHeel"],
-      ["leftHeel","leftFootIndex"],
-      ["leftAnkle","leftFootIndex"],
-      ["rightAnkle","rightHeel"],
-      ["rightHeel","rightFootIndex"],
-      ["rightAnkle","rightFootIndex"],
-
-      // croisements utiles pour plus de lignes visuelles
-      ["leftShoulder","leftWrist"],
-      ["rightShoulder","rightWrist"],
-      ["leftHip","leftAnkle"],
-      ["rightHip","rightAnkle"],
-      ["leftShoulder","leftKnee"],
-      ["rightShoulder","rightKnee"]
+      ["nose","leftEye"],["nose","rightEye"],["leftEye","rightEye"],["leftEye","leftEar"],["rightEye","rightEar"],
+      ["leftEar","leftShoulder"],["rightEar","rightShoulder"],
+      ["leftShoulder","rightShoulder"],["leftShoulder","leftElbow"],["leftElbow","leftWrist"],
+      ["rightShoulder","rightElbow"],["rightElbow","rightWrist"],
+      ["leftWrist","leftThumb"],["leftWrist","leftIndex"],["rightWrist","rightThumb"],["rightWrist","rightIndex"],
+      ["leftShoulder","leftHip"],["rightShoulder","rightHip"],["leftShoulder","rightHip"],["rightShoulder","leftHip"],["leftHip","rightHip"],
+      ["leftHip","leftKnee"],["leftKnee","leftAnkle"],["rightHip","rightKnee"],["rightKnee","rightAnkle"],
+      ["leftAnkle","leftHeel"],["leftHeel","leftFootIndex"],["leftAnkle","leftFootIndex"],
+      ["rightAnkle","rightHeel"],["rightHeel","rightFootIndex"],["rightAnkle","rightFootIndex"]
     ];
 
     let poseLandmarker = null;
@@ -284,49 +552,103 @@
     let animationId = null;
     let detectionEnabled = true;
     let lastVideoTime = -1;
-    let lastFrameTime = performance.now();
+    let lastFrameAt = performance.now();
+    let smoothedLandmarks = null;
 
     function addLog(message) {
-      const item = document.createElement('div');
-      item.className = 'log-item';
-      item.textContent = `${new Date().toLocaleTimeString('fr-FR')} — ${message}`;
+      const item = document.createElement("div");
+      item.className = "log-item";
+      item.textContent = `${new Date().toLocaleTimeString("fr-FR")} — ${message}`;
       logEl.prepend(item);
       while (logEl.children.length > 6) logEl.removeChild(logEl.lastChild);
     }
-    function setStatus(text, type = 'loading') {
+
+    function setStatus(text, type = "loading") {
       statusText.textContent = text;
-      statusDot.classList.remove('live', 'error');
-      if (type === 'live') statusDot.classList.add('live');
-      if (type === 'error') statusDot.classList.add('error');
+      statusDot.classList.remove("live", "error");
+      if (type === "live") statusDot.classList.add("live");
+      if (type === "error") statusDot.classList.add("error");
     }
+
     function renderBodyList(active = new Set()) {
-      bodyList.innerHTML = BODY_PARTS.map(part => `<div class="body-item ${active.has(part) ? 'active' : ''}"><span>${part}</span><span class="badge">${active.has(part) ? 'Détecté' : 'Attente'}</span></div>`).join('');
+      bodyList.innerHTML = BODY_PARTS.map(part => `
+        <div class="body-item ${active.has(part) ? "active" : ""}">
+          <span>${part}</span>
+          <span class="badge">${active.has(part) ? "Détecté" : "Attente"}</span>
+        </div>
+      `).join("");
     }
+
     function resizeCanvas() {
       const rect = video.getBoundingClientRect();
-      canvas.width = rect.width * devicePixelRatio;
-      canvas.height = rect.height * devicePixelRatio;
-      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      const width = Math.max(1, Math.round(rect.width));
+      const height = Math.max(1, Math.round(rect.height));
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
     }
-    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-    function point(landmarks, name) { return landmarks[LANDMARKS[name]]; }
-    function visible(p, threshold = 0.45) { return p && ((p.visibility ?? 1) > threshold || (p.presence ?? 1) > threshold); }
-    function canvasXY(p, width, height) { return { x: p.x * width, y: p.y * height }; }
-    function midpoint(a, b) { if (a && b) return { x:(a.x+b.x)/2, y:(a.y+b.y)/2, visibility: Math.min(a.visibility ?? 1, b.visibility ?? 1) }; return a || b || null; }
-    function roundRect(x, y, w, h, r) {
-      ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
-    }
-    function drawSkeleton(landmarks, width, height) {
-      const visiblePoints = Object.keys(LANDMARKS)
-        .map(name => ({ name, p: point(landmarks, name) }))
-        .filter(item => visible(item.p, 0.3))
-        .map(item => ({
-          name: item.name,
-          ...canvasXY(item.p, width, height)
-        }));
 
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function point(landmarks, name) {
+      return landmarks[LANDMARKS[name]];
+    }
+
+    function visible(p, threshold = 0.45) {
+      return p && ((p.visibility ?? 1) > threshold || (p.presence ?? 1) > threshold);
+    }
+
+    function canvasXY(p, width, height) {
+      return { x: p.x * width, y: p.y * height };
+    }
+
+    function midpoint(a, b) {
+      if (a && b) {
+        return {
+          x: (a.x + b.x) / 2,
+          y: (a.y + b.y) / 2,
+          z: ((a.z ?? 0) + (b.z ?? 0)) / 2,
+          visibility: Math.min(a.visibility ?? 1, b.visibility ?? 1)
+        };
+      }
+      return a || b || null;
+    }
+
+    function smoothLandmarks(current, factor = 0.55) {
+      if (!current) return null;
+      if (!smoothedLandmarks) {
+        smoothedLandmarks = current.map(p => ({ ...p }));
+        return smoothedLandmarks;
+      }
+      smoothedLandmarks = current.map((p, i) => {
+        const prev = smoothedLandmarks[i] || p;
+        return {
+          ...p,
+          x: prev.x * factor + p.x * (1 - factor),
+          y: prev.y * factor + p.y * (1 - factor),
+          z: (prev.z ?? 0) * factor + (p.z ?? 0) * (1 - factor),
+          visibility: Math.max(prev.visibility ?? 0, p.visibility ?? 0)
+        };
+      });
+      return smoothedLandmarks;
+    }
+
+    function roundRect(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function drawSkeleton(landmarks, width, height) {
       ctx.save();
-      ctx.lineWidth = 2.2;
+      ctx.lineWidth = 2.5;
       ctx.strokeStyle = "rgba(139,125,255,0.95)";
       ctx.shadowColor = "rgba(139,125,255,0.30)";
       ctx.shadowBlur = 10;
@@ -336,326 +658,392 @@
         const p1 = point(landmarks, a);
         const p2 = point(landmarks, b);
         if (!visible(p1, 0.3) || !visible(p2, 0.3)) continue;
-
         const A = canvasXY(p1, width, height);
         const B = canvasXY(p2, width, height);
-
         ctx.beginPath();
         ctx.moveTo(A.x, A.y);
         ctx.lineTo(B.x, B.y);
         ctx.stroke();
       }
       ctx.restore();
-
-      // Maillage ultra dense : au minimum 10 000 segments visuels
-      // On interpole entre des paires de points visibles pour créer beaucoup de lignes fines.
-      const targetSegments = 10000;
-      if (visiblePoints.length >= 2) {
-        ctx.save();
-        ctx.lineWidth = 0.45;
-        ctx.strokeStyle = "rgba(25,209,255,0.10)";
-
-        const pairCount = (visiblePoints.length * (visiblePoints.length - 1)) / 2;
-        const stepsPerPair = Math.max(2, Math.ceil(targetSegments / Math.max(pairCount, 1)));
-        let drawn = 0;
-
-        for (let i = 0; i < visiblePoints.length; i++) {
-          for (let j = i + 1; j < visiblePoints.length; j++) {
-            const a = visiblePoints[i];
-            const b = visiblePoints[j];
-
-            for (let s = 0; s < stepsPerPair; s++) {
-              const t1 = s / stepsPerPair;
-              const t2 = (s + 1) / stepsPerPair;
-
-              const x1 = a.x + (b.x - a.x) * t1;
-              const y1 = a.y + (b.y - a.y) * t1;
-              const x2 = a.x + (b.x - a.x) * t2;
-              const y2 = a.y + (b.y - a.y) * t2;
-
-              ctx.beginPath();
-              ctx.moveTo(x1, y1);
-              ctx.lineTo(x2, y2);
-              ctx.stroke();
-              drawn++;
-            }
-          }
-        }
-
-        // Si jamais le nombre visible de points est faible, on ajoute encore des segments circulaires
-        // autour des articulations pour garantir un rendu très dense.
-        if (drawn < targetSegments) {
-          for (const p of visiblePoints) {
-            const remaining = Math.min(420, targetSegments - drawn);
-            for (let k = 0; k < remaining; k++) {
-              const angle1 = (Math.PI * 2 * k) / remaining;
-              const angle2 = (Math.PI * 2 * (k + 1)) / remaining;
-              const r = 6 + (k % 10);
-              const x1 = p.x + Math.cos(angle1) * r;
-              const y1 = p.y + Math.sin(angle1) * r;
-              const x2 = p.x + Math.cos(angle2) * r;
-              const y2 = p.y + Math.sin(angle2) * r;
-              ctx.beginPath();
-              ctx.moveTo(x1, y1);
-              ctx.lineTo(x2, y2);
-              ctx.stroke();
-              drawn++;
-              if (drawn >= targetSegments) break;
-            }
-            if (drawn >= targetSegments) break;
-          }
-        }
-
-        fpsChip.textContent = `FPS : ${Math.round(1000 / Math.max(performance.now() - lastFrameTime, 1))} • Lignes : ${drawn}`;
-        ctx.restore();
-      }
     }
+
     function drawPoints(landmarks, width, height) {
       ctx.save();
       for (const p of landmarks) {
-        if (!visible(p)) continue;
+        if (!visible(p, 0.35)) continue;
         const { x, y } = canvasXY(p, width, height);
-        ctx.beginPath(); ctx.fillStyle = 'rgba(25,209,255,0.95)'; ctx.shadowColor = 'rgba(25,209,255,0.4)'; ctx.shadowBlur = 10; ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath();
+        ctx.fillStyle = "rgba(25,209,255,0.98)";
+        ctx.arc(x, y, 4.2, 0, Math.PI * 2);
+        ctx.fill();
       }
       ctx.restore();
     }
+
     function drawLabel(text, x, y, maxWidth) {
-      ctx.save(); ctx.font = '600 13px Inter, sans-serif';
-      const paddingX = 10; const width = ctx.measureText(text).width + paddingX * 2; const height = 32; const left = Math.max(8, Math.min(x, maxWidth - width - 8)); const top = Math.max(8, y - 38);
-      ctx.fillStyle = 'rgba(33,212,138,0.18)'; ctx.strokeStyle = 'rgba(33,212,138,0.85)'; ctx.lineWidth = 1.2; roundRect(left, top, width, height, 12); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#f6fffb'; ctx.fillText(text, left + paddingX, top + 21); ctx.restore();
+      ctx.save();
+      ctx.font = "600 13px Inter, sans-serif";
+      const paddingX = 10;
+      const width = ctx.measureText(text).width + paddingX * 2;
+      const height = 30;
+      const left = Math.max(8, Math.min(x, maxWidth - width - 8));
+      const top = Math.max(8, y - 36);
+
+      ctx.fillStyle = "rgba(33,212,138,0.18)";
+      ctx.strokeStyle = "rgba(33,212,138,0.85)";
+      ctx.lineWidth = 1.2;
+      roundRect(left, top, width, height, 10);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#f6fffb";
+      ctx.fillText(text, left + paddingX, top + 20);
+      ctx.restore();
     }
+
     function buildDetectedParts(landmarks) {
       const active = new Set();
-      const hasVisible = names => names.some(name => visible(point(landmarks, name)));
-      const hasAll = names => names.every(name => visible(point(landmarks, name)));
-      if (hasVisible(['nose','leftEye','rightEye','leftEar','rightEar'])) active.add('Tête');
-      if (hasVisible(['leftShoulder','rightShoulder'])) active.add('Épaules');
-      if (hasAll(['leftShoulder','leftElbow']) || hasAll(['rightShoulder','rightElbow'])) active.add('Bras');
-      if (hasVisible(['leftElbow','rightElbow'])) active.add('Coudes');
-      if (hasVisible(['leftWrist','rightWrist','leftThumb','rightThumb','leftIndex','rightIndex'])) active.add('Mains');
-      if (hasAll(['leftShoulder','rightShoulder','leftHip','rightHip'])) active.add('Torse');
-      if (hasVisible(['leftHip','rightHip'])) active.add('Hanches');
-      if (hasAll(['leftHip','leftKnee']) || hasAll(['rightHip','rightKnee'])) active.add('Jambes');
-      if (hasVisible(['leftKnee','rightKnee'])) active.add('Genoux');
-      if (hasVisible(['leftAnkle','rightAnkle','leftHeel','rightHeel','leftFootIndex','rightFootIndex'])) active.add('Pieds');
+      const hasVisible = names => names.some(name => visible(point(landmarks, name), 0.35));
+      const hasAll = names => names.every(name => visible(point(landmarks, name), 0.35));
+
+      if (hasVisible(["nose","leftEye","rightEye","leftEar","rightEar"])) active.add("Tête");
+      if (hasVisible(["leftShoulder","rightShoulder"])) active.add("Épaules");
+      if (hasAll(["leftShoulder","leftElbow"]) || hasAll(["rightShoulder","rightElbow"])) active.add("Bras");
+      if (hasVisible(["leftElbow","rightElbow"])) active.add("Coudes");
+      if (hasVisible(["leftWrist","rightWrist","leftThumb","rightThumb","leftIndex","rightIndex"])) active.add("Mains");
+      if (hasAll(["leftShoulder","rightShoulder","leftHip","rightHip"])) active.add("Torse");
+      if (hasVisible(["leftHip","rightHip"])) active.add("Hanches");
+      if (hasAll(["leftHip","leftKnee"]) || hasAll(["rightHip","rightKnee"])) active.add("Jambes");
+      if (hasVisible(["leftKnee","rightKnee"])) active.add("Genoux");
+      if (hasVisible(["leftAnkle","rightAnkle","leftHeel","rightHeel","leftFootIndex","rightFootIndex"])) active.add("Pieds");
       return active;
     }
-    function drawBodyLabels(landmarks, active, width) {
+
+    function drawBodyLabels(landmarks, active, width, height) {
       const anchors = {
-        'Tête': point(landmarks,'nose'),
-        'Épaules': midpoint(point(landmarks,'leftShoulder'), point(landmarks,'rightShoulder')),
-        'Bras': point(landmarks,'leftElbow') || point(landmarks,'rightElbow'),
-        'Coudes': point(landmarks,'rightElbow') || point(landmarks,'leftElbow'),
-        'Mains': point(landmarks,'rightWrist') || point(landmarks,'leftWrist'),
-        'Torse': midpoint(midpoint(point(landmarks,'leftShoulder'), point(landmarks,'rightShoulder')), midpoint(point(landmarks,'leftHip'), point(landmarks,'rightHip'))),
-        'Hanches': midpoint(point(landmarks,'leftHip'), point(landmarks,'rightHip')),
-        'Jambes': point(landmarks,'leftKnee') || point(landmarks,'rightKnee'),
-        'Genoux': point(landmarks,'rightKnee') || point(landmarks,'leftKnee'),
-        'Pieds': point(landmarks,'leftAnkle') || point(landmarks,'rightAnkle')
+        "Tête": point(landmarks,"nose"),
+        "Épaules": midpoint(point(landmarks,"leftShoulder"), point(landmarks,"rightShoulder")),
+        "Bras": point(landmarks,"leftElbow") || point(landmarks,"rightElbow"),
+        "Coudes": point(landmarks,"rightElbow") || point(landmarks,"leftElbow"),
+        "Mains": point(landmarks,"rightWrist") || point(landmarks,"leftWrist"),
+        "Torse": midpoint(
+          midpoint(point(landmarks,"leftShoulder"), point(landmarks,"rightShoulder")),
+          midpoint(point(landmarks,"leftHip"), point(landmarks,"rightHip"))
+        ),
+        "Hanches": midpoint(point(landmarks,"leftHip"), point(landmarks,"rightHip")),
+        "Jambes": point(landmarks,"leftKnee") || point(landmarks,"rightKnee"),
+        "Genoux": point(landmarks,"rightKnee") || point(landmarks,"leftKnee"),
+        "Pieds": point(landmarks,"leftAnkle") || point(landmarks,"rightAnkle")
       };
+
       for (const label of active) {
         const anchor = anchors[label];
-        if (!anchor || !visible(anchor, 0.2)) continue;
-        const { x, y } = canvasXY(anchor, video.clientWidth, video.clientHeight);
+        if (!anchor || !visible(anchor, 0.3)) continue;
+        const { x, y } = canvasXY(anchor, width, height);
         drawLabel(label, x + 10, y, width);
       }
     }
+
     function updateInfo(landmarks, active) {
-      const visibleCount = landmarks.filter(p => visible(p)).length;
-      const avgConfidence = landmarks.length ? landmarks.reduce((sum, p) => sum + (p.visibility ?? 0.85), 0) / landmarks.length : 0;
-      peopleCount.textContent = landmarks.length ? '1' : '0';
+      const visibleCount = landmarks.filter(p => visible(p, 0.35)).length;
+      const avgConfidence = landmarks.length
+        ? landmarks.reduce((sum, p) => sum + (p.visibility ?? 0.85), 0) / landmarks.length
+        : 0;
+
+      peopleCount.textContent = landmarks.length ? "1" : "0";
       pointsCount.textContent = String(visibleCount);
       confidenceValue.textContent = `${Math.round(avgConfidence * 100)}%`;
-      infoText.textContent = active.size ? `Reconnaissance en cours : ${Array.from(active).join(', ')}.` : 'Aucun membre principal détecté pour le moment.';
+      infoText.textContent = active.size
+        ? `Reconnaissance en cours : ${Array.from(active).join(", ")}.`
+        : "Aucun membre principal détecté pour le moment.";
     }
 
     async function init() {
       try {
-        addLog('Chargement du moteur de détection...');
-        setStatus('Chargement du moteur IA...', 'loading');
+        addLog("Chargement du moteur de détection...");
+        setStatus("Chargement du moteur IA...", "loading");
 
-        const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm');
+        const vision = await FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm"
+        );
+
         poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
           baseOptions: {
-            modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task'
+            modelAssetPath:
+              "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task"
           },
-          runningMode: 'VIDEO',
+          runningMode: "VIDEO",
           numPoses: 1,
-          minPoseDetectionConfidence: 0.5,
-          minPosePresenceConfidence: 0.5,
-          minTrackingConfidence: 0.5
+          minPoseDetectionConfidence: 0.45,
+          minPosePresenceConfidence: 0.45,
+          minTrackingConfidence: 0.45
         });
 
-        setStatus('Moteur prêt', 'live');
-        modeValue.textContent = 'Détection live';
-        infoText.textContent = 'Moteur chargé. Tu peux lancer la caméra ou importer une vidéo.';
-        addLog('Moteur prêt.');
+        setStatus("Moteur prêt", "live");
+        modeValue.textContent = "Détection active";
+        infoText.textContent = "Moteur chargé. Tu peux lancer la caméra ou charger une vidéo.";
+        addLog("Moteur prêt.");
       } catch (err) {
         console.error(err);
-        setStatus('Erreur moteur', 'error');
-        infoText.textContent = 'Le moteur IA n’a pas pu se charger. Vérifie que tu ouvres bien la page sur localhost, que la connexion internet fonctionne, et utilise Chrome de préférence.';
-        addLog(`Erreur moteur : ${err?.message || 'inconnue'}`);
+        setStatus("Erreur moteur", "error");
+        infoText.textContent = `Le moteur IA n’a pas pu se charger : ${err?.message || "erreur inconnue"}`;
+        addLog(`Erreur moteur : ${err?.message || "inconnue"}`);
       }
     }
 
     async function startCamera() {
       try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('getUserMedia non supporté');
-        stopSource(false);
-        let stream;
-        try {
-          stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false });
-        } catch {
-          addLog('Premier essai caméra échoué, fallback simple.');
-          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("Caméra non supportée par ce navigateur");
         }
+
+        if (location.protocol !== "https:" && location.hostname !== "localhost") {
+          throw new Error("La caméra nécessite HTTPS ou localhost");
+        }
+
+        setStatus("Demande d'accès caméra...", "loading");
+        infoText.textContent = "Autorise la caméra dans le navigateur si une demande apparaît.";
+        addLog("Demande d'accès caméra.");
+
+        stopSource(false);
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            frameRate: { ideal: 30, max: 30 },
+            facingMode: "user"
+          },
+          audio: false
+        });
+
         currentStream = stream;
         video.srcObject = stream;
         video.muted = true;
-        await new Promise(resolve => { if (video.readyState >= 1) return resolve(); video.onloadedmetadata = () => resolve(); });
+        video.playsInline = true;
+
+        await new Promise((resolve) => {
+          if (video.readyState >= 1) return resolve();
+          video.onloadedmetadata = () => resolve();
+        });
+
         await video.play();
-        sourceChip.textContent = 'Source : caméra';
-        modeValue.textContent = 'Caméra';
-        setStatus('Caméra active', 'live');
-        infoText.textContent = 'Caméra ouverte. L’analyse corporelle démarre en temps réel.';
-        addLog('Caméra lancée.');
+
+        sourceChip.textContent = "Source : caméra";
+        modeValue.textContent = "Caméra";
+        setStatus("Caméra active", "live");
+        infoText.textContent = "Caméra ouverte. Analyse corporelle en temps réel.";
+        addLog("Caméra lancée.");
+
         resizeCanvas();
         startLoop();
       } catch (err) {
         console.error(err);
-        setStatus('Caméra indisponible', 'error');
-        infoText.textContent = `Impossible d’ouvrir la caméra : ${err?.message || 'erreur inconnue'}. Autorise la caméra dans le navigateur et dans Réglages Système > Confidentialité et sécurité > Caméra.`;
-        addLog(`Accès caméra impossible : ${err?.message || 'erreur inconnue'}`);
+        setStatus("Caméra indisponible", "error");
+        infoText.textContent = `Impossible d'ouvrir la caméra : ${err?.name || ""} ${err?.message || "erreur inconnue"}`;
+        addLog(`Erreur caméra : ${err?.name || ""} ${err?.message || "inconnue"}`);
       }
     }
 
-    async function loadVideo(file) {
+    async function loadVideoFile(file) {
       if (!file) return;
+
       try {
         stopSource(false);
+
         const objectUrl = URL.createObjectURL(file);
         video.pause();
         video.srcObject = null;
-        video.removeAttribute('src');
+        video.removeAttribute("src");
         video.load();
-        video.preload = 'auto';
+
+        video.preload = "auto";
         video.loop = true;
         video.muted = true;
         video.autoplay = true;
         video.controls = true;
         video.src = objectUrl;
+
         await new Promise((resolve, reject) => {
           let done = false;
+
           const cleanup = () => {
-            video.removeEventListener('loadedmetadata', onReady);
-            video.removeEventListener('canplay', onReady);
-            video.removeEventListener('error', onError);
+            video.removeEventListener("loadedmetadata", onReady);
+            video.removeEventListener("canplay", onReady);
+            video.removeEventListener("error", onError);
           };
-          const onReady = () => { if (done) return; done = true; cleanup(); resolve(); };
-          const onError = () => { if (done) return; done = true; cleanup(); reject(new Error('Impossible de charger la vidéo')); };
-          video.addEventListener('loadedmetadata', onReady, { once: true });
-          video.addEventListener('canplay', onReady, { once: true });
-          video.addEventListener('error', onError, { once: true });
+
+          const onReady = () => {
+            if (done) return;
+            done = true;
+            cleanup();
+            resolve();
+          };
+
+          const onError = () => {
+            if (done) return;
+            done = true;
+            cleanup();
+            reject(new Error("Impossible de charger la vidéo"));
+          };
+
+          video.addEventListener("loadedmetadata", onReady, { once: true });
+          video.addEventListener("canplay", onReady, { once: true });
+          video.addEventListener("error", onError, { once: true });
         });
+
         await video.play();
-        sourceChip.textContent = 'Source : vidéo importée';
-        modeValue.textContent = 'Vidéo';
-        setStatus('Vidéo active', 'live');
+
+        sourceChip.textContent = "Source : vidéo importée";
+        modeValue.textContent = "Vidéo";
+        setStatus("Vidéo active", "live");
         infoText.textContent = `Vidéo chargée : ${file.name}`;
         addLog(`Vidéo chargée : ${file.name}`);
+
         resizeCanvas();
         startLoop();
       } catch (err) {
         console.error(err);
-        setStatus('Erreur vidéo', 'error');
-        infoText.textContent = `Impossible d’afficher la vidéo importée : ${err?.message || 'erreur inconnue'}. Essaie un fichier MP4.`;
-        addLog(`Erreur import vidéo : ${err?.message || 'erreur inconnue'}`);
+        setStatus("Erreur vidéo", "error");
+        infoText.textContent = `Impossible de charger le fichier : ${err?.message || "erreur inconnue"}`;
+        addLog(`Erreur vidéo : ${err?.message || "inconnue"}`);
       }
     }
 
     function stopSource(clearVideo = true) {
       cancelAnimationFrame(animationId);
       animationId = null;
+      smoothedLandmarks = null;
+      lastVideoTime = -1;
+
       if (currentStream) {
         currentStream.getTracks().forEach(track => track.stop());
         currentStream = null;
       }
+
       if (clearVideo) {
-        const previousSrc = video.getAttribute('src');
+        const previousSrc = video.getAttribute("src");
         video.pause();
-        video.removeAttribute('src');
+        video.removeAttribute("src");
         video.srcObject = null;
         video.load();
-        if (previousSrc && previousSrc.startsWith('blob:')) { try { URL.revokeObjectURL(previousSrc); } catch {} }
-        sourceChip.textContent = 'Source : aucune';
-        modeValue.textContent = 'Standby';
+
+        if (previousSrc && previousSrc.startsWith("blob:")) {
+          try { URL.revokeObjectURL(previousSrc); } catch {}
+        }
+
+        sourceChip.textContent = "Source : aucune";
+        modeValue.textContent = "Standby";
       }
+
       clearCanvas();
       renderBodyList(new Set());
-      peopleCount.textContent = '0';
-      pointsCount.textContent = '0';
-      confidenceValue.textContent = '0%';
-      fpsChip.textContent = 'FPS : --';
+      peopleCount.textContent = "0";
+      pointsCount.textContent = "0";
+      confidenceValue.textContent = "0%";
+      fpsChip.textContent = "FPS : --";
     }
 
     function startLoop() {
       cancelAnimationFrame(animationId);
       lastVideoTime = -1;
-      const loop = () => { animationId = requestAnimationFrame(loop); detectFrame(); };
+
+      const loop = () => {
+        animationId = requestAnimationFrame(loop);
+        detectFrame();
+      };
+
       loop();
     }
+
     function updateFps() {
       const now = performance.now();
-      const delta = now - lastFrameTime;
+      const delta = now - lastFrameAt;
       const fps = 1000 / Math.max(delta, 1);
-      lastFrameTime = now;
+      lastFrameAt = now;
       fpsChip.textContent = `FPS : ${Math.round(fps)}`;
     }
+
     function detectFrame() {
-      if (!poseLandmarker || !detectionEnabled || video.readyState < 2) { clearCanvas(); return; }
+      if (!poseLandmarker || !detectionEnabled || video.readyState < 2) {
+        clearCanvas();
+        return;
+      }
+
       if (video.currentTime === lastVideoTime) return;
       lastVideoTime = video.currentTime;
+
       resizeCanvas();
       clearCanvas();
       updateFps();
-      const width = video.clientWidth;
-      const height = video.clientHeight;
+
+      const width = canvas.width;
+      const height = canvas.height;
+
       const result = poseLandmarker.detectForVideo(video, performance.now());
-      const landmarks = result.landmarks?.[0];
-      if (!landmarks) {
+      const rawLandmarks = result.landmarks?.[0];
+
+      if (!rawLandmarks) {
         renderBodyList(new Set());
-        peopleCount.textContent = '0';
-        pointsCount.textContent = '0';
-        confidenceValue.textContent = '0%';
-        infoText.textContent = 'Aucun corps détecté. Garde la personne bien dans le cadre.';
+        peopleCount.textContent = "0";
+        pointsCount.textContent = "0";
+        confidenceValue.textContent = "0%";
+        infoText.textContent = "Aucun corps détecté. Garde la personne bien dans le cadre.";
+        smoothedLandmarks = null;
         return;
       }
+
+      const landmarks = smoothLandmarks(rawLandmarks, 0.55);
       const active = buildDetectedParts(landmarks);
+
       drawSkeleton(landmarks, width, height);
       drawPoints(landmarks, width, height);
-      drawBodyLabels(landmarks, active, width);
+      drawBodyLabels(landmarks, active, width, height);
       renderBodyList(active);
       updateInfo(landmarks, active);
     }
 
-    cameraBtn.addEventListener('click', startCamera);
-    videoInput.addEventListener('change', async e => { const file = e.target.files?.[0]; if (file) await loadVideo(file); e.target.value = ''; });
-    toggleBtn.addEventListener('click', () => {
+    fileBtn.addEventListener("click", () => {
+      try {
+        videoInput.click();
+        addLog("Ouverture du sélecteur de fichier.");
+      } catch (err) {
+        console.error(err);
+        setStatus("Erreur ouverture fichier", "error");
+        infoText.textContent = `Impossible d'ouvrir le sélecteur : ${err?.message || "erreur inconnue"}`;
+        addLog(`Erreur ouverture fichier : ${err?.message || "inconnue"}`);
+      }
+    });
+
+    cameraBtn.addEventListener("click", startCamera);
+
+    videoInput.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) {
+        addLog("Aucun fichier sélectionné.");
+        return;
+      }
+      await loadVideoFile(file);
+      e.target.value = "";
+    });
+
+    toggleBtn.addEventListener("click", () => {
       detectionEnabled = !detectionEnabled;
-      toggleBtn.textContent = detectionEnabled ? '⏸️ Pause détection' : '▶️ Reprendre détection';
-      infoText.textContent = detectionEnabled ? 'Détection relancée.' : 'Détection mise en pause.';
-      addLog(detectionEnabled ? 'Détection relancée.' : 'Détection mise en pause.');
+      toggleBtn.textContent = detectionEnabled ? "⏸️ Pause détection" : "▶️ Reprendre détection";
       if (!detectionEnabled) clearCanvas();
     });
-    stopBtn.addEventListener('click', () => {
+
+    stopBtn.addEventListener("click", () => {
       stopSource();
-      setStatus('Analyse arrêtée', 'loading');
-      infoText.textContent = 'Flux arrêté. Relance la caméra ou importe une vidéo.';
-      addLog('Analyse arrêtée.');
+      setStatus("Analyse arrêtée", "loading");
+      infoText.textContent = "Flux arrêté.";
+      addLog("Analyse arrêtée.");
     });
-    window.addEventListener('resize', resizeCanvas);
+
+    window.addEventListener("resize", resizeCanvas);
+
     renderBodyList(new Set());
-    addLog('Interface chargée.');
+    addLog("Interface chargée.");
     init();
   </script>
 </body>
